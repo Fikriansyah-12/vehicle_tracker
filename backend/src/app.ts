@@ -8,11 +8,11 @@ import swaggerJsdoc from 'swagger-jsdoc';
 // Import routes
 import authRoutes from './routes/auth';
 import vehicleRoutes from './routes/vehicles';
-// import reportRoutes from './routes/reports';
-// import userRoutes from './routes/users';
+import reportRoutes from './routes/reports';
+import userRoutes from './routes/users';
 
 // Import middleware
-// import { errorHandler } from './middleware/errorHandler';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { authenticateToken } from './middleware/auth';
 
 const app = express();
@@ -63,9 +63,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // Routes
 app.use('/api/auth', authRoutes);
-// app.use('/api/users', authenticateToken, userRoutes);
+app.use('/api/users', authenticateToken, userRoutes);
 app.use('/api/vehicles', authenticateToken, vehicleRoutes);
-// app.use('/api/reports', authenticateToken, reportRoutes);
+app.use('/api/reports', authenticateToken, reportRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -77,7 +77,10 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Error handling middleware
-// app.use(errorHandler);
+// 404 handler (harus setelah semua routes)
+app.use(notFoundHandler);
+
+// Error handler (harus di akhir)
+app.use(errorHandler);
 
 export default app;
